@@ -478,6 +478,12 @@
     Tempest Method
     witch hunt
 
+:Functional programming
+  trying to simulate the mathematic with a help of programs
+
+:Object-oriented programming
+  trying to simulate the surrounding world with a help of programs
+
 :MMU
   Memory Management Unit
   hardware support for virtual memory
@@ -486,11 +492,21 @@
   @read http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
 
 :SOLID
+  @watch https://www.youtube.com/watch?v=jP7fSA8DuJQ
+
   :SRP Single responsibility
     a class should have only a single responsibility
+    there should never be more than one reason for a class to change
+    
+    doing the one thing - you can focus on that
+    the class is doint too much
+
+    @example
+      (new Report).Print()
   
   OCP: Open-closed
-    should be open for extension, but closed for modification
+    software entities (classes, modules, functions, etc) should be opened for extension
+    and closed for modification
 
   LSP: Liskov substitution
     objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program
@@ -500,6 +516,9 @@
 
   DIP: Dependency inversion
     Depend upon Abstractions. Do not depend upon concretions
+
+:GRASP
+  @read http://regfordev.blogspot.de/2011/02/grasp.html#.VVkYPJMrKHo
 
 :OSI
   Open System Interconnection model
@@ -649,3 +668,141 @@
 
       :GraphDb
         @todo
+
+:Refactoring
+  it is not a tool (its smth inside your brain)
+
+:MapReduce
+  is an algorithm that can process a very large amount of data in parallel
+  paradigme
+  programming model for distributed computing
+  send "map" and "recuce" tasks to cluster
+
+  Collection MapReduce(Collection source, Function map, Function reduce)
+
+  stages
+    split
+    map
+      the responsability is to convert an item from the source collection
+      to zero or many instances of Key/Value objects
+
+      (K1,V1) => list(K2,V2)
+      ArrayOfKeyValue Map(object itemFromSourceCollection)
+    combine/shuffle
+      sort all Key/Value instances
+      create new object instances where all values are grouped by Key
+    reduce
+      will return a new item instance that will be included into the result collection
+      (K2,list(V2)) => list(K3,V3)
+      ItemResult Reduce(KeyWithArrayOfValues item)
+
+:PHP
+  @read http://php.net/manual/en/appendices.php
+
+  v5.6
+    - Constant Scalar Expressions
+      const ONE = 1
+    - Variadic Functions via "..."
+      public function query($query, ...$params) { ... }
+    - Arguments Unpacking via "..."
+      $args = [1, 3, 5, 7, 9];
+      someMethod(...$args)
+      =>
+      someMethod(1, 3, 5, 7, 9)
+    - Exponentiation via **
+      2 ** 3 === 8
+    - Use function and use const
+      Importing namespaced functions
+      namespace {
+        use foo\bar as b;
+      }
+    - Large file uploads
+      uploads of over 2GB are now accepted
+    - implemented cURL HTTP2 support
+
+  v5.5
+    - added Generators
+      function test() {
+        yield 5;
+      }
+    - finally keyword added (try/catch)
+    - foreach support list() in a value
+    - foreach now supports non-scalar keys
+    - array and string literal dereferencing
+      'test'[1]
+      [1,2,3][1]
+    - Class name resolution via ::class
+
+  v5.4
+    - traits
+    - short syntax for arrays
+    - function array dereferencing
+      foo()[1]
+    - Closures now support $this
+    - <?= is always available
+    - Binary number format has been added
+      0b001001101
+    - added null-byte protection for exec/system/passthru
+
+  v5.3 (2009)
+    - namespaces
+    - Late Static Bindings
+    - jump labels (limited goto)
+    - Support for native Closures
+    - __callStatic() and __invoke() added
+    - shorthand form of ternary operator
+    - Exceptions can now be nested
+
+  v5
+    added "clone" work for Object Model
+    constants in class
+    class visibility protectors (private, protected, public)
+    constructors and descructors
+    abstract classes
+    interfaces
+    magic methods
+    final methods
+    __autoload
+    PDO / DOM / Hash - SPL modules
+
+:SPDY
+  protocol developed by Google
+
+:HTTP2
+  @read http://daniel.haxx.se/http2/
+  @read http://tools.ietf.org/html/draft-ietf-httpbis-http2-12
+
+  by developer (why made curl/libcurl) from Mozilla
+  by HTTPbis (from latin "bis" means two)
+
+  based on SPDY
+  no minor versions ever (the next will be http3)
+  binary protocol
+    detecting the start and the end of packet is the one of biggest problem
+  using frames
+    12 different frames (DATA, HEADERS, etc)
+    type, length, flags, identifier, data
+      identifier to assiciate different parallel streams
+  threads multiplexing
+    different streams are mixed up, but server can recognize them by frame identifier
+  stateless
+
+
+  http 1.1
+    http conveyor belt transmission
+      like a queue in supermarket - you don't know persons in the front of you,
+      and you don't know how much time they will occupy
+    using sprites
+    embeded images
+      css background url with data image/png
+    concating
+    resources sharding
+      since HTTP allows only 2 parallel tcp connections
+
+:Graphs
+  V - vertex
+  E - edge (directed, undirected)
+
+  @example
+    V = {1, 2, 3, ..., 13}
+    E = {{1,2}, {9,11}, {7,13}}
