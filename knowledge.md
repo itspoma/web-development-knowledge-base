@@ -7,11 +7,152 @@
     @read php https://github.com/domnikl/DesignPatternsPHP
 
     :Behavioral
-      :ChainOfResponsibilities
+      :Chain Of Responsibilities
+        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/ChainOfResponsibilities
+
+        consisting of a source of command objects and a series of processing objects
+
+        each processing object contains logic that defines the types of command objects that it can handle
+        the rest are passed to the next processing object in the chain
+
+        @purpose
+          to build a chain of objects to handle a call in sequential order
+          if one object cannot handle a call, it delegates the call to the next in the chain and so forth
+
+        @examples
+          - SPAM filter
+          - a loggin framework
+          - Caching (memcache->db)
+
+        @example
+          class Handler
+            $successor = null
+
+            append (Handler $handler) ->
+              if not $successor
+                $successor = $handler
+              else
+                $successor.append($handler)
+
+            handle (args) ->
+              $processed = processing(args)
+              if not $processed
+                $processed = $successor.handle(args)
+              return $processed
+
+            processing (args) -> ;
+
+          class FastStorage extends Handler
+            processing (args) ->
+              ...
+              return true/false
+
+          class SlowStorage extends Handler
+            processing (args) ->
+              ...
+              return true/false
+
+          $chain = new FastStorage(..params..)
+          $chain.append(new SlowStorage(..params..))
+
       :Command
+        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Command
+        to encapsulate invocation and decoupling
+
+        @example
+          interface CommandInterface
+            execute () -> ;
+
+          class Invoker
+            setCommand (CommandInterface $cmd) ->
+              $command = $cmd
+
+            run () ->
+              $command->execute()
+
+          class Receiver
+            write (str) -> print str
+
+          class HelloCommand implements CommandInterface
+            __construct(Receiver $console) ->
+              $output = $console
+
+            execute () ->
+              $output->write('hello world')
+
+          $receiver = new Receiver
+
+          $invoker = new Invoker
+          $invoker->setCommand(new HelloCommand($receiver))
+          $invoker->run()
+
       :Iterator
+        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Iterator
+
+        to make an object iterable and to make it appear like a collection of objects
+
+        @examples
+          to process a file line by line by just running over all lines
+
+        @example
+          class Book
+          class BookList
+          class BookListIterator
+          class BookListReverseIterator
+
       :Mediator
+        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Mediator
+
+        provides an easy to decouple many components working together
+        all components (called Colleague) are only coupled to the MediatorInterface
+
+        @example
+          abstract class Colleague
+            __construct (MediatorInterface $medium) -> ;
+
+          interface MediatorInterface
+            sendResponse ($content)
+            makeRequest ()
+            queryDb ()
+
+          class Mediator implements MediatorInterface
+            setColleague(Database $database, Client $client, Server $server) -> ;
+            sendResponse() -> client.output()
+            makeRequest() -> server.process()
+            queryDb() -> database.process()
+
+          class Client extends Colleague
+            request() -> medium->makeRequest()
+            output(args) -> print(args)
+
+          $client = new Client($media)
+          $media = new Mediator()
+          $media->setColleague(new Database($media), $client, new Server($media));
+          $client->request()
+
       :Memento
+        @php read https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Memento
+
+        provide the ability to restore an object to its previous state (undo via rollback)
+
+        @examples
+          class Memento
+            __construct($stateToSave) -> ;
+            getState() -> return $state
+
+          class Originator
+            setState ($state) -> ;
+            saveToMemento() ->
+              return new Memento($state);
+            restoreFromMemento (Memento $memento) ->
+              $state = $memento->getState()
+
+          class Test
+            $first = new Originator
+            $first->setState('aa')
+            $first->saveToMemento()
+            $someState = $first->restoreFromMemento()
+
       :NullObject
       :Observer
       :Specification
@@ -494,6 +635,8 @@
 :SOLID
   @watch https://www.youtube.com/watch?v=jP7fSA8DuJQ
 
+  named by Robert C. Martin
+
   :SRP Single responsibility
     a class should have only a single responsibility
     there should never be more than one reason for a class to change
@@ -550,7 +693,7 @@
 :CORS
   Cross-Origin Resource Sharing
   specification that enables truly open access across domain-boundaries
-
+  alternative for JSONP, since support not only GET http request
 
 :API
   Application Programming Interface
@@ -559,6 +702,13 @@
   when you wish to obtain data from a application without having to actually visit the application itself
 
   endpoint
+
+:OAuth
+  is a mechanism that allows you to create temporary tokens
+  is a common used scheme for authentication and authorization
+
+:OAuth2
+  is a complete new way of authentication which is easier to implement and maintain
 
 :REST
   Representational State Transfer
@@ -576,6 +726,8 @@
   @read http://coreymaynard.com/blog/creating-a-restful-api-with-php/
 
   for developing web APIs
+  stateless client-server relationship
+  takes advantage of the HTTP request methods
 
   ~ when you use REST, things are simpler
 
@@ -594,8 +746,46 @@
     cachable
     layered
 
-  stateless client-server relationship
-  takes advantage of the HTTP request methods
+  authentication
+    simple way - use the HTTP basic authentication
+    :HMAC
+      hash based message authentication
+      digest = base64encode(hmac("sha256", "secret", "GET+/users/foo/financialrecords"))
+      Authentication: hmac johndoe:[digest]
+    OAuth
+      temporary tokens
+      John "asks" the server for a "token" and "secret",
+      and with these token and secret, it is allowed to access its protected resources
+    OAuth2
+      # 
+
+  caching
+    The goal of caching is never having to generate the same response twice
+    gain speed and reduce server load
+    can be used a reverse-proxy (like Varnish)
+    for purging caches used http verb PURGE
+      resource should be marked expired
+
+  versioning
+    /api/v2/
+
+  :HATEOAS
+    Hypertext As The Engine Of Application State
+
+    @example
+      GET /account/12345 HTTP/1.1
+      HTTP/1.1 200 OK
+      <?xml version="1.0"?>
+      <account>
+        <account_number>12345</account_number>
+        <link rel="deposit" href="/account/12345/deposit" />
+        <link rel="withdraw" href="/account/12345/withdraw" />
+      </account>
+
+  :COD
+    code-on-demand
+    optional constraint in REST
+
 
   - separates user interface concerns from data storage concerns
   - improves portability of interface across multiple platforms
@@ -608,6 +798,10 @@
   - uniform operations
     in db: insert, select, update, delete (CRUD)
     over http: POST, GET, PUT, DELETE
+      PATCH
+        for updating partial resources (when you need to update only one field on resource)
+        is :idempotent (no effect when called one than once)
+          a = 4
 
   - resources
     any information that can be names is a resource
@@ -621,6 +815,14 @@
     good, clean, structured URIs are helpful for developers
   - representation
     formats html, xml, json, etc
+
+:HAL
+  Hypertext Application Language
+  is a simple format that gives a consistent and easy way to hyperlink between resources in your API
+  human-friendly
+
+:JSON-LD
+  JSON-based Serialization for Linked Data
 
 :Database
   :CAP
@@ -806,3 +1008,88 @@
   @example
     V = {1, 2, 3, ..., 13}
     E = {{1,2}, {9,11}, {7,13}}
+
+:Software development process
+  :Methodologie
+    :Waterfall
+      @read http://leadinganswers.typepad.com/leading_answers/files/original_waterfall_paper_winston_royce.pdf
+      @watch https://www.youtube.com/watch?v=X1c2--sP3o0&feature=youtu.be
+
+      design process
+      used in software development processes
+      in which progress is seen as flowing steadily downwards (like waterfall)
+
+      iterational software developoment
+
+      used to development of airplanes/bridges/etc
+      perfectionism at every stage
+
+      model
+        requirements
+        design
+        implementation
+        verification
+        maintenance
+
+      pros
+        no remaking the work that was completed
+          a clear sequence of steps of the life cycle
+          without possibility return to the previous step
+        good specification flows into a good documentation
+          and as a result we will have a lot of documentation
+        clear model
+        developers may have low qualifications
+
+      cons
+        required perfectionism at every stage
+        it is difficult to make changes
+        excessive design
+        dividing developers to "perfect" and "code monkeys"
+
+    :RUP
+      Rational Unified Process
+      @read ru http://www.interface.ru/rational/rup01_t.htm
+      
+      strict approach for the allocation of problems
+      and responsibility inside of organization-developer
+
+      the goal is to guarantee creating the application exact in time and exact in project-budged
+      with UML
+
+      iterational software developoment
+      requirements management
+      using the component architecture
+      visual modeling
+      software quality testing
+      monitoring changes in software
+
+      in workflows
+
+:Deferred
+  decouple logic from behaviors
+  FIFO (queue)
+
+  API
+    .then(doneCallbacks, failedCallbacks)
+    .done(doneCallbacks)
+    .fail(failedCallbacks)
+    .resolve(args)
+    .reject(args)
+    .resolveWith(context, args)
+    .rejectWith(context, args)
+    .isResolved()
+    .isRejected()
+
+  @example
+    d = $.Deferred()
+    setTimeout(d.resolve, 3000)
+    return d.promise()
+
+  :Promise
+    object
+    implements observer
+    "object is observable or not"
+
+:Rainbow Table
+  is a precomputed table for reversing cryptographic hash functions
+  usually for cracking password hashes
