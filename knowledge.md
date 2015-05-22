@@ -4,9 +4,160 @@
   reusable solution
 
   :Software design patterns
-    @read php https://github.com/domnikl/DesignPatternsPHP
+    @read #php https://github.com/domnikl/DesignPatternsPHP
+
+    :Creational
+      based on the concept of creating an object
+      focus on handling object creation mechanisms
+
+      :Factory Method
+        is an object for creating other objects
+        a class creates the object you want to use
+
+        depends on abstractions, not concrete class
+        (archieve the "D" from SOLID principles)
+
+        in class-based programming a factory is an abstraction of a constructor of a class
+        in prototype-based programming a factory is an abstraction of a prototype object
+
+        factory method / factory function
+
+        @pros
+          if you'll change a source-class later - you'll need to make changes only in factory-method (instead of every place where it used)
+          instead of repeating logic of creating new instance, you delegate it to factory
+
+        @cons
+          unneeded complexity
+
+        @example
+          class AutomobileFactory
+            static function create($param)
+              return new Automobile($param1)
+
+          new AutomobileFactory::create('Opel', 'Astra')
+
+        :SimpleFactory
+          @example
+            class StaticFactory
+              classes =
+                name1: className1
+                name2: className2
+
+              factory (name) ->
+                className = classes[name]
+                return new className
+
+        :StaticFactory
+          @example
+            class StaticFactory
+              factory (name) ->
+                className = '\Some' + name
+                return new className
+
+      :Abstract Factory
+        @read http://www.dofactory.com/javascript/abstract-factory-design-pattern
+
+        provide an interface
+        for creating families of related or dependent objects
+        without specifying their concrete classes
+
+        creates objects that are related by a common theme
+
+        is an object that creates other objects
+
+        @example
+          AbstractFactory
+
+          LightFactory <- AbstractFactory
+            creates a light html elements
+
+          DarkFactory <- AbstractFactory
+            creates a dark html elements
+
+          both creates the same types of controls
+
+        @example
+          // declares an interface for creating products
+          abstract class AbstractFactory
+            abstract method1()
+            abstract method2()
+
+          // others can be - EmployeeFactory, VendorFactory
+          class ConcreteFactory extends AbstractFactory
+            method1() -> return new Product1
+            method2() -> return new Product2
+
+          // others can be - Employee, Vendor
+          // instances being created by the factory
+          class Product1 implements AbstractProduct
+          class Product2 implements AbstractProduct
+
+          // an interface for the instances that are being created
+          interface AbstractProduct
+
+          $factory = new ConcreteFactory
+          $factory instanceof AbstractProduct
+
+      :Factory
+        merged AbstractFactory and FactoryMethod
+        is simply an object that creates other objects
+
+      :Builder
+        is an interface that build parts of a complex object
+
+        separate the construction of a complex object from its representation
+        so that the same construction process can create different representations
+
+        construction details are hidden
+        encapsulate construction
+        is to simplify client code that creates complex objects
+
+        @example
+          interface BuilderInterface
+            createVehicle
+            getVehicle
+            addWheel
+            addEngine
+            addDoors
+          class BikeBuilder implements BuilderInterface
+            createVehicle -> new Parts/Bike
+          class CarBuilder implements BuilderInterface
+
+      :Multiton
+        to have only a list of named instances that are used (like a Singleton but with N instances)
+        stores inself few Singleton instances
+        use DependencyInjection instead of
+
+        @example
+          class Multiton
+            getInstance (name) ->
+              if not self::instances[name]
+                self::instances[name] = new self
+
+              return self::instances[name]
+
+      :Pool
+        object pool
+        uses a set of initialized objects kept ready to use
+
+      :Prototype
+        to avoid the cost of creating objects the standard way (new Foo())
+        and instead create a prototype and clone it
+
+        fully initialized instance used for copying or cloning
+
+      :Singleton
+        @read #js http://addyosmani.com/resources/essentialjsdesignpatterns/book/#singletonpatternjavascript
+
+        to have only one instance of this object in the application that will handle all calls
+        a class with only a single instance with global access points
+
+        s
 
     :Behavioral
+      based on the way objects play and work together
+      focus on improving or streamlining the communication between disparate objects in a system
+
       :Chain Of Responsibilities
         @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/ChainOfResponsibilities
 
@@ -131,9 +282,21 @@
           $client->request()
 
       :Memento
-        @php read https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Memento
+        @read @php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Memento
+        @read @js http://www.dofactory.com/javascript/memento-design-pattern
 
         provide the ability to restore an object to its previous state (undo via rollback)
+
+        captures the object internal state,
+        so object can be restored to this state later
+
+        @diagram
+          class Originator
+            createMemento()
+            setMemento(memento)
+
+          class Memento extends Originator
+          class Caretaker extends Memento
 
         @examples
           class Memento
@@ -154,124 +317,207 @@
             $someState = $first->restoreFromMemento()
 
       :NullObject
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/NullObject
+
+        @examples
+          #php SF2 null logger of profiler
+          #php SF2 null output in Symfony/Console
+
+        @diagram
+          class LoggerInterface
+          class PrintLogger implements LoggerInterface
+          class NullLogger implements LoggerInterface
+
       :Observer
+        @read http://www.dofactory.com/javascript/observer-design-pattern
+        Pub/Sub == Publication/Subscription
+
+         one-to-many dependency between objects so that when one object changes state,
+         all its dependents are notified and updated automatically
+
+         offers a subscription model
+         where objects subscribe to an event
+         get notified when the event occurs
+
+         is a cornerstone of event-driven programming
+         promotes loose coupling
+
+         @diagram
+          // e.g.: Click
+          class Subject
+            subscribe()
+            unsubscribe()
+            notify()
+
+          // e.g.: clickHandler
+          class Observers
+
       :Specification
+
       :State
+        @read http://www.dofactory.com/javascript/state-design-pattern
+
+        allow an object to alter its behavior when its internal state changes.
+
+        @diagram
+          // e.g.: TrafficLight
+          class Context
+            request() -> ;
+
+          // e.g.: Red, Yellow, Green
+          class State1
+            handle() -> ;
+
       :Strategy
+        define a family of algorithms, encapsulate each one, and make them interchangeable.
+        lets the algorithm vary independently from clients that use it.
+
+        encapsulates alternative algorithms for a particular task
+        allows a method to be swapped out at runtime by any other method
+
+        @examples
+          test the performance of few algorithms
+            one-by-one
+
+        @diagram
+          // maintains a reference to the current Strategy object
+          // e.g.: Shipping
+          class Context
+            request()
+            process()
+
+          // implements the algorithm
+          // e.g.: UPS, USPS, Fedex, etc
+          class Strategy1 extends Context
+          class Strategy2 extends Context
+          class Strategy3 extends Context
+
+        @example
+          class Shipping
+            setStrategy (company) -> ;
+            calculate (package) ->
+              company.calculate(package)
+
+          class UPS
+            calculate (package) -> '$20'
+
+          class USPS
+            calculate (package) -> '$18'
+
+          class Fedex
+            calculate (package) -> '$15'
+
+          $ups = new UPS
+          $usps = new USPS
+          $fedex = new Fedex
+
+          $shipping = new Shipping
+          $shipping.setStrategy($ups)
+          print $shipping.calculate()
+
+          $shipping.setStrategy($usps)
+          print $shipping.calculate()
+
+          $shipping.setStrategy($fedex)
+          print $shipping.calculate()
+
       :TemplateMethod
+        @read http://www.dofactory.com/javascript/template-method-design-pattern
+
+        define the skeleton of an algorithm in an operation, deferring some steps to subclasses
+        lets subclasses redefine certain steps of an algorithm without changing the algorithm structure
+
+        @examples
+          RouteProcess has preProcess, process, postProcess methods
+
+        @diagram
+          // provides the hooks
+          // implements the basic methods
+          // e.g.: datastore
+          class AbstractClass
+            step1()
+            step2()
+            step3()
+
+          // implements the primitive steps
+          // e.g.: mysql
+          class ConcreteClass extends AbstractClass
+            step1()
+            step2()
+            step3()
+
       :Visitor
+        @read #js http://www.dofactory.com/javascript/visitor-design-pattern
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Visitor
 
-    :Creational
-      :Abstract Factory
-        to create series of related or dependent objects
-        without specifying their concrete classes
+        an operation to be performed on the elements of an object structure
+        lets you define a new operation without changing the classes of the elements on which it operates
 
-        @example
-          interface Picture { ... }
-          interface Text { ... }
+        defines a new operation to a collection of objects without changing the objects themselves
+        the new logic resides in a separate object called the Visitor
 
-          abstract class AbstractFactory
-            function createPicture()
-            function createText()
+        are useful when building extensibility in a library or framework
 
-          class HtmlFactory extends AbstractFactory
-            function createPicture()
-              return new Html\Picture(...)
-            function createText()
-              return new Html\Text(...)
-
-          class JsonFactory extends AbstractFactory
-            function createPicture()
-              return new Json\Picture(...)
-            function createText()
-              return new Json\Text(...)
-
-          $factory = new HtmlFactory
-          $factory instanceof Picture
-
-      :Builder
-        is an interface that build parts of a complex object
+        objects have a 'visit' method, that accepts a Visitor object
 
         @example
-          interface BuilderInterface
-            createVehicle
-            getVehicle
-            addWheel
-            addEngine
-            addDoors
-          class BikeBuilder implements BuilderInterface
-            createVehicle -> new Parts/Bike
-          class CarBuilder implements BuilderInterface
+          // maintains a collection of Elements which can be iterated over
+          // e.g.: employees array
+          ObjectStructure
 
-      :Factory Method
-        is an object for creating other objects
-        a class creates the object you want to use
+          // defines an accept method
+          // the "visitor" param is "this"
+          // e.g.: Employee objects
+          Elements <- ObjectStructure
+            accept (visitor) -> ;
 
-        depends on abstractions, not concrete class
-        (archieve the "D" from SOLID principles)
-
-        in class-based programming a factory is an abstraction of a constructor of a class
-        in prototype-based programming a factory is an abstraction of a prototype object
-
-        factory method / factory function
-
-        @pros
-          if you'll change a source-class later - you'll need to make changes only in factory-method (instead of every place where it used)
-          instead of repeating logic of creating new instance, you delegate it to factory
-
-        @cons
-          unneeded complexity
+          // implements a visit method
+          // e.g. ExtraSalary, ExtraVacation
+          Visitor
+            visit (element) -> ;
 
         @example
-          class AutomobileFactory
-            static function create($param)
-              return new Automobile($param1)
+          class Employee
+            accept (visitor) -> visitor.visit(self)
+            get/set Name() -> ;
+            get/set Salary() -> ;
+            get/set Vacation() -> ;
 
-          new AutomobileFactory::create('Opel', 'Astra')
+          class ExtraSalary
+            visit (employee) -> employee.setSalary(...)
 
-        :SimpleFactory
-          @example
-            class StaticFactory
-              classes =
-                name1: className1
-                name2: className2
+          class ExtraVacation
+            visit (employee) -> employee.setVacation(...)
 
-              factory (name) ->
-                className = classes[name]
-                return new className
+          $visitorSalary = new ExtraSalary
+          $visitorVacation = new ExtraVacation
+          $employee1 = new Employee
+          $employee1.accept($visitorSalary)
+          $employee2 = new Employee
+          $employee2.accept($visitorVacation)
 
-        :StaticFactory
-          @example
-            class StaticFactory
-              factory (name) ->
-                className = '\Some' + name
-                return new className
+      :Module in javascript
+        The Module pattern
+          var myObject = (function () {
+            ...
+            return { ... }
+          })()
 
-      :Multiton
-        to have only a list of named instances that are used (like a Singleton but with N instances)
-        stores inself few Singleton instances
-        use DependencyInjection instead of
+        Object literal notation
+          var myObject = { ... }
 
-        @example
-          class Multiton
-            getInstance (name) ->
-              if not self::instances[name]
-                self::instances[name] = new self
+        AMD modules
 
-              return self::instances[name]
+        CommonJS modules
 
-      :Pool
-        object pool
-        uses a set of initialized objects kept ready to use
-
-      :Prototype
-        to avoid the cost of creating objects the standard way (new Foo())
-        and instead create a prototype and clone it
-
-      :Singleton
-        to have only one instance of this object in the application that will handle all calls
+        ECMAScript Harmony modules
 
     :Structural
+      based on the idea of building blocks of objects
+
+      are concerned with object composition
+      and typically identify simple ways to realize relationships between different objects
+
       :Adapter
         @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter
 
@@ -430,61 +676,193 @@
           service = new Webservice
           (new RenderInJson).renderData(service)
 
-      :DependencyInjection
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/DependencyInjection
+      :IOC
+        Inversion of Control
 
-        to implement a loosely coupled architecture in order to get better testable, maintainable and extendable code
+        instead of a higher level class depending on a lower level class (dependecy) implementation,
+        the control is inversed so the lower level class implementation depends on an abstraction required by the higher level class.
 
-        @example
-          abstract class AbstractConfig
-            __construct($storage) -> ;
+        reversed to DependencyInjection
 
-          interface Parameters
-            get($key);
-            set($key, $value);
+        DI and SL are implementation of ICO
 
-          class ArrayConfig extends AbstractConfig implements Parameters
-            get($key) ->
-              storage[$key]
+        @examples
+          interface IRepository
+          class XmlRepository implements IRepository
+          class MyClass
+            __construct (IRepository $repo) {}
 
-            set($key, $value) ->
-              storage[$key] = $value
+        :Service Locator
+          @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/More/ServiceLocator
 
-          class Connection
-            __construct(Parameters $config) -> ;
+          implement a loosely coupled architecture in order to get
+          better testable, maintainable and extendable code
 
-          source = array(...)
-          config = new ArrayConfig(source)
+          are an implementation of the Inverse of Control pattern
 
-          connection = new Connection(config)
-          connection.connect()
+          you can register a service for a given interface
+
+          @examples
+            ZF2 uses SL to create/share service that used in framework (EventManager, ModuleManager, etc)
+
+          terms
+            Service - main object, that you can receive from container
+            Service Definition - the logic of initialized service
+            Service Container - central object that saves all descriptions and can create objects by them
+
+          @diagram
+            class dependencies: C -> A -> B
+            C -> ServiceLocator -> A -> ServiceLocator -> B
+
+          @diagram
+            interface ServiceLocatorInterface
+              get ($interface) -> ;
+              has ($interface) -> ;
+
+            class ServiceContainer implementation ServiceLocatorInterface
+              $services
+              add ($interface, $service) -> call $services[$key]
+              has ($key) -> $services[$key]
+              get ($key) -> call $services[$key]
+
+            interface LogServiceInterface
+            class LogService implements LogServiceInterface
+
+            interface DatabaseServiceInterface
+            class DatabaseService implements DatabaseServiceInterface
+
+          @example
+            $container = new ServiceContainer();
+            $container['grabber'] = -> return new Grabber();
+            $container['html_filter'] = -> return new HtmlExtractor();
+
+        :DependencyInjection
+          @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/DependencyInjection
+
+          to implement a loosely coupled architecture in order to get better testable, maintainable and extendable code
+
+          @example
+            abstract class AbstractConfig
+              __construct($storage) -> ;
+
+            interface Parameters
+              get($key);
+              set($key, $value);
+
+            class ArrayConfig extends AbstractConfig implements Parameters
+              get($key) ->
+                storage[$key]
+
+              set($key, $value) ->
+                storage[$key] = $value
+
+            class Connection
+              __construct(Parameters $config) -> ;
+
+            source = array(...)
+            config = new ArrayConfig(source)
+
+            connection = new Connection(config)
+            connection.connect()
 
       :Facade
-      :FluentInterface
-      :Proxy
-      :Registry
+        @read http://www.dofactory.com/javascript/facade-design-pattern
 
+        provide a unified interface to a set of interfaces in a subsystem
+        defines a higher-level interface that makes the subsystem easier to use
+
+        @diagram
+          // e.g.: Mortgage
+          class Facade
+            method()
+
+          // e.g.: Bank, Credit, Background
+          class SubSystem1 extends Facade
+          class SubSystem2 extends Facade
+          class SubSystem3 extends Facade
+
+      :FluentInterface
+
+      :Proxy
+        a place holder object representing the true object
+
+      :Registry
+        @read #php http://habrahabr.ru/post/183658/
+
+        is a container where we keep an objects,
+        pass them inside the application
+
+        cons
+          the redundant object will be created (that probably will be never used after)
+          additional dependency in one place
+          the method that accepts $registry can use any of services inside
+            so we cant say what exactly service will be used
+            we need to check to source code before
+
+        @example
+          $registry = new ArrayObject();
+          $registry['grabber'] = new Grabber();
+          $registry['filter'] = new HtmlExtractor();
+          $registry['google_finder'] = new GoogleFinder($registry['grabber'], $registry['filter']);
+
+      :Flyweight
+        @read #js http://www.dofactory.com/javascript/flyweight-design-pattern
+
+        sharing to support large numbers of fine-grained objects efficiently
+        conserves memory
+        is an object normalization technique
+
+        @diagram
+          // calls to FlyweightFactory to obtain flyweight objects
+          // e.g.: Computer
+          class Client
+
+          // creates and manages flyweight objects
+          // e.g.: 
+          class FlyweightFactory extends Client
+            getFlyweight()
+
+          // maintains intrinsic data to be shared across the application
+          // e.g.: 
+          class Flyweight extends FlyweightFactory
+
+    Other
+      :Delegation
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/More/Delegation
+
+        @example
+          class TeamLead
+            __construct(JuniorDeveloper $junior) ->
+              $slave = $junior
+
+            writeCode () ->
+              $slave->writeBadCode()
+
+          class JuniorDeveloper
+            writeBadCode () -> ;
+
+          $junior = new JuniorDeveloper
+          $lead = new TeamLead($junior)
+          $lead->writeCode()
+
+      :Money
+        @l20n :Деньги
+        uses for multicurrency
+        @problem how to add 10usd to 10uah?
+        @problem how to round the result?
+
+      :Value Object
+        @l20n :Объект-значение
+        like small data-type
 
     :Mapper
       @l20n :Распределитель
       @read http://design-pattern.ru/patterns/mapper.html
 
-    :Money
-      @l20n :Деньги
-      uses for multicurrency
-      @problem how to add 10usd to 10uah?
-      @problem how to round the result?
 
     :Registry
       @l20n :Реестр
       to access common objects and services
-
-    :Value Object
-      @l20n :Объект-значение
-      like small data-type
-
-    :Repository
-      @l20n :Репозиторий
 
     :Active Record
       @l20n :Активная запись
@@ -554,6 +932,8 @@
           - user interact
 
       :MVP
+        @read #dotnet http://rsdn.ru/article/patterns/ModelViewPresenter.xml
+
         originated in early 1990s
         is derivativive of MVC
         View cooperates with Presenter (by calling the relevant functions)
@@ -595,6 +975,24 @@
         pay with some hit in performance
 
   :Resign Patterns :Anti-pattern
+    anti-pattern represents a lesson that has been learned
+
+    @read http://addyosmani.com/resources/essentialjsdesignpatterns/book/#antipatterns
+
+    in 1995 by Andrew Koenig
+
+    describe a bad solution
+    describe how to get out
+
+    @examples
+      - global namespace by defining a large number of variables in the global context
+
+      - eval()
+
+      - Modifying the Object class prototype
+
+      - 
+
     hard code
     soft code
     magic numbers
@@ -628,6 +1026,9 @@
 :MMU
   Memory Management Unit
   hardware support for virtual memory
+
+  @read ru http://habrahabr.ru/post/211150/
+  
 
 :OOD Object Oriented Design
   @read http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
@@ -1065,6 +1466,12 @@
 
       in workflows
 
+      has knowledge base in Web
+
+    :Scrum
+      @read http://scrum.org.ua/wp-content/uploads/ScrumAndKanbanRuFinal.pdf
+      @read ru http://scrum.org.ua/wp-content/uploads/2008/12/scrum_xp-from-the-trenches-rus-final.pdf
+
 :Deferred
   decouple logic from behaviors
   FIFO (queue)
@@ -1093,3 +1500,18 @@
 :Rainbow Table
   is a precomputed table for reversing cryptographic hash functions
   usually for cracking password hashes
+
+:Security
+  :OWASP Top-10
+    Injections
+      by Structured Query Language
+    Broken Authentication and Session Management
+    Cross Site Scripting
+    Insecure Direct Object References
+      mysite.ru/read_message.jsp?id=123654
+    Security Misconfiguration
+    Sensitive Data Exposure
+    Missing Function Level Access Control
+    Cross-Site Request Forgery, CSRF/XSRF
+    Using Components with Known Vulnerabilities
+    Unvalidated Redirects and Forwards
