@@ -1,3 +1,7 @@
+:RPM
+  Red Hat Package Manager
+  is a package management system
+
 :Patterns
   similar goals, archieve them in different ways
   modularity, flexibility, testability, maintainability
@@ -5,38 +9,48 @@
 
   :Software design patterns
     @read #php https://github.com/domnikl/DesignPatternsPHP
+    @read #php GOF http://www.fluffycat.com/PHP-Design-Patterns/
 
     :Creational
-      based on the concept of creating an object
       focus on handling object creation mechanisms
+      how object will be created
 
       :Factory Method
-        is an object for creating other objects
-        a class creates the object you want to use
-
-        depends on abstractions, not concrete class
-        (archieve the "D" from SOLID principles)
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Factory-Method/
+        
+        creates the object you want to use
+        will create the exact subclass depend on the value you pass
+        depends on abstractions, not concrete class (archieve the "D" from SOLID principles)
 
         in class-based programming a factory is an abstraction of a constructor of a class
         in prototype-based programming a factory is an abstraction of a prototype object
 
-        factory method / factory function
-
         @pros
-          if you'll change a source-class later - you'll need to make changes only in factory-method (instead of every place where it used)
+          if source-class will changed - you'll need to make change only in factory-method
           instead of repeating logic of creating new instance, you delegate it to factory
 
         @cons
           unneeded complexity
 
         @example
-          class AutomobileFactory
-            static function create($param)
-              return new Automobile($param1)
+          abstract class AbstractFactoryMethod
+            abstract function makePHPBook($param)
 
-          new AutomobileFactory::create('Opel', 'Astra')
+          class OReillyFactoryMethod extends AbstractFactoryMethod
+            $context = "OReilly"
+            function makePHPBook($param) ->
+              return new OReillyPHPBook($param)
+
+          class SamFactoryMethod extends AbstractFactoryMethod
+            $context = "Sam"
+            function makePHPBook($param) ->
+              return new OReillyPHPBook($param)
+
+          (new OReillyFactoryMethod)->makePHPBook('test')
 
         :SimpleFactory
+          the Factory Method w\ map of classLabel <-> className
+
           @example
             class StaticFactory
               classes =
@@ -48,11 +62,12 @@
                 return new className
 
         :StaticFactory
+          the Factory Method w\ realtime generation name of className
+
           @example
             class StaticFactory
               factory (name) ->
-                className = '\Some' + name
-                return new className
+                return new ('\Some' + name)
 
       :Abstract Factory
         @read http://www.dofactory.com/javascript/abstract-factory-design-pattern
@@ -68,11 +83,11 @@
         @example
           AbstractFactory
 
-          LightFactory <- AbstractFactory
-            creates a light html elements
+          LightFactory extends AbstractFactory
+            ..creates a light html elements
 
-          DarkFactory <- AbstractFactory
-            creates a dark html elements
+          DarkFactory extends AbstractFactory
+            ..creates a dark html elements
 
           both creates the same types of controls
 
@@ -98,11 +113,9 @@
           $factory = new ConcreteFactory
           $factory instanceof AbstractProduct
 
-      :Factory
-        merged AbstractFactory and FactoryMethod
-        is simply an object that creates other objects
-
       :Builder
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Builder/
+
         is an interface that build parts of a complex object
 
         separate the construction of a complex object from its representation
@@ -119,47 +132,75 @@
             addWheel
             addEngine
             addDoors
+
           class BikeBuilder implements BuilderInterface
             createVehicle -> new Parts/Bike
+
           class CarBuilder implements BuilderInterface
-
-      :Multiton
-        to have only a list of named instances that are used (like a Singleton but with N instances)
-        stores inself few Singleton instances
-        use DependencyInjection instead of
-
-        @example
-          class Multiton
-            getInstance (name) ->
-              if not self::instances[name]
-                self::instances[name] = new self
-
-              return self::instances[name]
+            createVehicle -> new Parts/Car
 
       :Pool
         object pool
         uses a set of initialized objects kept ready to use
 
       :Prototype
-        to avoid the cost of creating objects the standard way (new Foo())
-        and instead create a prototype and clone it
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Prototype/
 
-        fully initialized instance used for copying or cloning
+        make new objects by cloning the objects which you set as prototypes
+
+        pros:
+          to avoid the cost of creating objects the standard way (new Foo())
+          and instead create a prototype and clone it
+
+        @example
+          abstract class BookPrototype
+            abstract function __clone
+            function getTitle -> this.$title
+            function setTitle ($title) -> this.$title = $title
+            function getTopic -> this.$topic
+
+          class PHPBookPrototype extends BookPrototype
+            function __construct -> this.$topic = 'PHP'
+            function __clone -> ;
+
+          class SQLBookPrototype extends BookPrototype
+            function __construct -> this.$topic = 'SQL'
+            function __clone -> ;
+
+          $book1 = clone $sqlProto;
 
       :Singleton
         @read #js http://addyosmani.com/resources/essentialjsdesignpatterns/book/#singletonpatternjavascript
 
-        to have only one instance of this object in the application that will handle all calls
-        a class with only a single instance with global access points
+        a class distributes the only instance of itself
 
-        s
+        cons:
+          global access point
+
+        :Multiton
+          to have only a list of named instances that are used (like a Singleton but with N instances)
+          stores inself few Singleton instances
+          use DependencyInjection instead of
+
+          @example
+            class Multiton
+              getInstance (name) ->
+                if not self::instances[name]
+                  self::instances[name] = new self
+
+                return self::instances[name]
 
     :Behavioral
       based on the way objects play and work together
-      focus on improving or streamlining the communication between disparate objects in a system
+      about their communication between
 
       :Chain Of Responsibilities
         @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/ChainOfResponsibilities
+        @read php http://www.fluffycat.com/PHP-Design-Patterns/Chain-Of-Responsibility/
+
+        a method called in one object,
+        will move up a chain of objects
+        until one is found that can properly handle the call
 
         consisting of a source of command objects and a series of processing objects
 
@@ -172,20 +213,20 @@
 
         @examples
           - SPAM filter
-          - a loggin framework
-          - Caching (memcache->db)
+          - a logging framework
+          - Caching (memcache -> db -> file -> void)
 
         @example
           class Handler
             $successor = null
 
-            append (Handler $handler) ->
+            function append (Handler $handler) ->
               if not $successor
                 $successor = $handler
               else
                 $successor.append($handler)
 
-            handle (args) ->
+            function handle (args) ->
               $processed = processing(args)
               if not $processed
                 $processed = $successor.handle(args)
@@ -207,28 +248,31 @@
           $chain.append(new SlowStorage(..params..))
 
       :Command
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Command
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Command
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Command/
+
         to encapsulate invocation and decoupling
+        an object encapsulates everything needed to execute a method in another object
 
         @example
           interface CommandInterface
-            execute () -> ;
+            function execute () -> ;
 
           class Invoker
-            setCommand (CommandInterface $cmd) ->
+            function setCommand (CommandInterface $cmd) ->
               $command = $cmd
 
-            run () ->
+            function run () ->
               $command->execute()
 
           class Receiver
-            write (str) -> print str
+            function write ($str) -> print $str
 
           class HelloCommand implements CommandInterface
-            __construct(Receiver $console) ->
+            function __construct(Receiver $console) ->
               $output = $console
 
-            execute () ->
+            function execute () ->
               $output->write('hello world')
 
           $receiver = new Receiver
@@ -238,9 +282,11 @@
           $invoker->run()
 
       :Iterator
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Iterator
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Iterator
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Iterator/
 
         to make an object iterable and to make it appear like a collection of objects
+        traverse
 
         @examples
           to process a file line by line by just running over all lines
@@ -252,29 +298,30 @@
           class BookListReverseIterator
 
       :Mediator
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Mediator
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Mediator
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Mediator/
 
         provides an easy to decouple many components working together
         all components (called Colleague) are only coupled to the MediatorInterface
 
         @example
           abstract class Colleague
-            __construct (MediatorInterface $medium) -> ;
+            function __construct (MediatorInterface $medium) -> ;
 
           interface MediatorInterface
-            sendResponse ($content)
-            makeRequest ()
-            queryDb ()
+            function sendResponse ($content)
+            function makeRequest ()
+            function queryDb ()
 
           class Mediator implements MediatorInterface
-            setColleague(Database $database, Client $client, Server $server) -> ;
-            sendResponse() -> client.output()
-            makeRequest() -> server.process()
-            queryDb() -> database.process()
+            function setColleague(Database $database, Client $client, Server $server) -> ;
+            function sendResponse() -> client.output()
+            function makeRequest() -> server.process()
+            function queryDb() -> database.process()
 
           class Client extends Colleague
-            request() -> medium->makeRequest()
-            output(args) -> print(args)
+            function request() -> medium->makeRequest()
+            function output(args) -> print(args)
 
           $client = new Client($media)
           $media = new Mediator()
@@ -282,9 +329,11 @@
           $client->request()
 
       :Memento
-        @read @php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Memento
-        @read @js http://www.dofactory.com/javascript/memento-design-pattern
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Memento
+        @read #js http://www.dofactory.com/javascript/memento-design-pattern
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Memento/
 
+        one object stores another objects state
         provide the ability to restore an object to its previous state (undo via rollback)
 
         captures the object internal state,
@@ -298,16 +347,39 @@
           class Memento extends Originator
           class Caretaker extends Memento
 
-        @examples
+        @example
+          class BookReader
+            function __construct (BookReader $bookReader) ->
+              $this->setPage($bookReader)
+              $this->setTitle($bookReader)
+
+            function getPage ()
+            function setPage ($page)
+
+          class BookMark
+            function getPage (BookReader $bookReader)
+            function setPage (BookReader $bookReader)
+
+          $bookReader = new BookReader ("")
+          $bookMark = new BookMark ($bookReader)
+
+          $bookReader->setPage("104")
+          $bookMark->setPage($bookReader)
+
+          $bookMark->getPage($bookReader)
+
+        @example
           class Memento
-            __construct($stateToSave) -> ;
-            getState() -> return $state
+            function __construct($stateToSave) -> ;
+            function getState() -> return $state
 
           class Originator
-            setState ($state) -> ;
-            saveToMemento() ->
-              return new Memento($state);
-            restoreFromMemento (Memento $memento) ->
+            function setState ($state) -> ;
+            
+            function saveToMemento() ->
+              return new Memento($state)
+
+            function restoreFromMemento (Memento $memento) ->
               $state = $memento->getState()
 
           class Test
@@ -1111,111 +1183,173 @@
 :OAuth2
   is a complete new way of authentication which is easier to implement and maintain
 
-:REST
-  Representational State Transfer
-  ROA = Resource Oriented Architecture
+:SOA
+  Service Oriented Architecture
+
+:WebService
+  a way of integrating applications using the XML, SOAP, WSDL, etc
+  for building the API, to simplify the access to the app
+
+  web consists of types of apps:
+    1) computing nodes
+    2) web-resources
+
+  :JSON-RPC
   
-  is an architecture style (set of resources)
-  consisting of guidelines and best practices for creating scalable web services
-  lead to a more performant and maintainable architecture
+  :JSON-WS
+  
+  :XML-RPC
+    built in 1998 by Microsoft
 
-  simpler alternative to SOAP and WSDL-based Web services
+    pros
+      - simple
+      - human readable
 
-  is the DBMS of the internet
-  is about resources, and how to represent them
-
-  @read http://coreymaynard.com/blog/creating-a-restful-api-with-php/
-
-  for developing web APIs
-  stateless client-server relationship
-  takes advantage of the HTTP request methods
-
-  ~ when you use REST, things are simpler
-
-  characteristics
-  - resources
-    uri
-      every resource is uniquely adressable using URIs
-    uniform interface
-      all resources share a uniform
-      consists of
-        methods (http - GET/POST/DELETE/HEAD)
-        representation
-  - protocol
-    client-server
-    stateless
-    cachable
-    layered
-
-  authentication
-    simple way - use the HTTP basic authentication
-    :HMAC
-      hash based message authentication
-      digest = base64encode(hmac("sha256", "secret", "GET+/users/foo/financialrecords"))
-      Authentication: hmac johndoe:[digest]
-    OAuth
-      temporary tokens
-      John "asks" the server for a "token" and "secret",
-      and with these token and secret, it is allowed to access its protected resources
-    OAuth2
-      # 
-
-  caching
-    The goal of caching is never having to generate the same response twice
-    gain speed and reduce server load
-    can be used a reverse-proxy (like Varnish)
-    for purging caches used http verb PURGE
-      resource should be marked expired
-
-  versioning
-    /api/v2/
-
-  :HATEOAS
-    Hypertext As The Engine Of Application State
+    cons
+      - hasnt strict validation of format
+      - need a custom description of service
 
     @example
-      GET /account/12345 HTTP/1.1
-      HTTP/1.1 200 OK
-      <?xml version="1.0"?>
-      <account>
-        <account_number>12345</account_number>
-        <link rel="deposit" href="/account/12345/deposit" />
-        <link rel="withdraw" href="/account/12345/withdraw" />
-      </account>
+      <methodCall>
+        <methodName>examples.getAirportCode</methodName>
+        <params>
+          <param>
+             <value><i4>567</i4></value>
+          </param>
+        </params>
+      </methodCall>
 
-  :COD
-    code-on-demand
-    optional constraint in REST
+  :REST
+    Representational State Transfer
+    ROA = Resource Oriented Architecture
+
+    by Roy Filding
+    
+    is an architecture style (set of resources)
+    consisting of guidelines and best practices for creating scalable web services
+    lead to a more performant and maintainable architecture
+
+    simpler alternative to SOAP and WSDL-based Web services
+
+    is the DBMS of the internet
+    is about resources, and how to represent them
+
+    @read http://coreymaynard.com/blog/creating-a-restful-api-with-php/
+
+    for developing web APIs
+    stateless client-server relationship
+    takes advantage of the HTTP request methods
+
+    ~ when you use REST, things are simpler
+
+    characteristics
+    - resources
+      uri
+        every resource is uniquely adressable using URIs
+      uniform interface
+        all resources share a uniform
+        consists of
+          methods (http - GET/POST/DELETE/HEAD)
+          representation
+    - protocol
+      client-server
+      stateless
+      cachable
+      layered
+
+    authentication
+      simple way - use the HTTP basic authentication
+      :HMAC
+        hash based message authentication
+        digest = base64encode(hmac("sha256", "secret", "GET+/users/foo/financialrecords"))
+        Authentication: hmac johndoe:[digest]
+      OAuth
+        temporary tokens
+        John "asks" the server for a "token" and "secret",
+        and with these token and secret, it is allowed to access its protected resources
+      OAuth2
+        # 
+
+    caching
+      The goal of caching is never having to generate the same response twice
+      gain speed and reduce server load
+      can be used a reverse-proxy (like Varnish)
+      for purging caches used http verb PURGE
+        resource should be marked expired
+
+    versioning
+      /api/v2/
+
+    :HATEOAS
+      Hypertext As The Engine Of Application State
+
+      @example
+        GET /account/12345 HTTP/1.1
+        HTTP/1.1 200 OK
+        <?xml version="1.0"?>
+        <account>
+          <account_number>12345</account_number>
+          <link rel="deposit" href="/account/12345/deposit" />
+          <link rel="withdraw" href="/account/12345/withdraw" />
+        </account>
+
+    :COD
+      code-on-demand
+      optional constraint in REST
 
 
-  - separates user interface concerns from data storage concerns
-  - improves portability of interface across multiple platforms
-  - stateless (no client state)
-    each request from client to server must contain all of the information necessary to understand the request
-    session state is kept on client
-  - ??? cachable
-  - uniform interface
-  - layered system
-  - uniform operations
-    in db: insert, select, update, delete (CRUD)
-    over http: POST, GET, PUT, DELETE
-      PATCH
-        for updating partial resources (when you need to update only one field on resource)
-        is :idempotent (no effect when called one than once)
-          a = 4
+    - separates user interface concerns from data storage concerns
+    - improves portability of interface across multiple platforms
+    - stateless (no client state)
+      each request from client to server must contain all of the information necessary to understand the request
+      session state is kept on client
+    - ??? cachable
+    - uniform interface
+    - layered system
+    - uniform operations
+      in db: insert, select, update, delete (CRUD)
+      over http: POST, GET, PUT, DELETE
+        PATCH
+          for updating partial resources (when you need to update only one field on resource)
+          is :idempotent (no effect when called one than once)
+            a = 4
 
-  - resources
-    any information that can be names is a resource
-    resource is a mapping to a set of entities
-    are transfered between client and server
-    may include metadata describing themselves
-  - resource identifiers
-    uri - name that uniquely identifies it
-    uri like a primary key of each row in a db
-    uri - resource locator
-    good, clean, structured URIs are helpful for developers
-  - representation
-    formats html, xml, json, etc
+    - resources
+      any information that can be names is a resource
+      resource is a mapping to a set of entities
+      are transfered between client and server
+      may include metadata describing themselves
+    - resource identifiers
+      uri - name that uniquely identifies it
+      uri like a primary key of each row in a db
+      uri - resource locator
+      good, clean, structured URIs are helpful for developers
+    - representation
+      formats html, xml, json, etc
+
+  :CORBA
+    Common Object Request Broker Architecture
+
+  :SOAP
+    Simple Object Access Protocol
+    by Microsoft
+    wrapped by envelope
+    "you need a rope when you will try to debug the SOAP"
+    is evolved from XML-RPC
+    more applicable in complex architectures
+    if you will have more operations that CRUD
+    manipulation with remote objects
+
+    :WSDL
+      Web Service Description Language
+      specification for developers
+      :IDL (Interface Definition Language) for WebServices
+
+      types of request
+        one-way
+        request-response
+        solicit-response
+        notification
 
 :HAL
   Hypertext Application Language
@@ -1243,6 +1377,16 @@
         document - is a big JSON object without specific format and structure
         for storing the random json objects
         written in C++, released at 2009
+
+        features
+          ad-hoc queries
+          indexing
+          replication
+          load balancing
+          file storage
+          aggregation
+          server-side js execution
+          capped collections
 
         v3
           arbitrary engines for storing data
@@ -1369,7 +1513,91 @@
     PDO / DOM / Hash - SPL modules
 
 :SPDY
-  protocol developed by Google
+  SPeeDY
+  protocol, developed by Google
+
+:Comet
+  allows to send data from server to browser, withoud requesting them by browser
+
+  :long polling
+    steps
+      client send ajax-request,
+      server read/flush/sleep,
+      send response in N seconds/minutes,
+      client retreive response, parse it, and send another the same request 
+
+  :WebSockets
+    @read ru http://habrahabr.ru/post/79038/
+
+  :AJAX
+    # 
+
+:DNS
+  Domain Name System
+
+  type of records
+    A - address record
+    AAAA - IPv6 address record
+    CNAME - canonical name record
+    MX - mail exchange
+    NS - name server
+    PTR - domain name pointer
+    SOA - start of authority
+
+:Load Balancing
+  request -> dns -> load-balancer-1/2/n -> server-1/2/3/n
+
+  dns: Amazon Route 53
+    @watch https://youtu.be/tj2V0DCaYUM
+    Health Checks
+    
+    types of magic
+      Latency Based Routing
+        check latency (time to receiving data from server-1/2)
+        searching for fast server
+      Geo DSN
+        only from EU
+        default
+      Weighted Routin Robin
+        server1: weight:100 (probability 0.25)
+        server2: weight:300 (probability 0.75)
+        for A/B tests
+      DNS Failover
+        primary/secondary
+        always return primary-server
+        secondary can be error-page (ex "we now about problem, we're solving it now")
+      Combiner
+
+  LB: Elastic LC, HAProxy
+  region
+
+:HTTP
+  :TCP/IP
+    TCP, IP, UDP, etc
+    layers
+      Application layer
+        data for applications
+      Transport layer
+        delivering data
+      Internet layer
+        delivering between networks
+      Link layer
+        transmission packets on physical layer
+
+:HTTPS
+  @read #ru https://blog.yandex.ru/post/77455/
+
+  handshake algorithm
+    1) Bob -> box(with Bob-lock) -> Alice
+    2) Alice -> box (with Bob-lock, and with Alice-lock) -> Bob
+    3) Bob remove own Bob-lock -> box (with Alice->lock) -> Alice
+    4) Alice got box(with Alice-lock)
+
+:WebSocket
+  @read #ru http://habrahabr.ru/post/79038/
+
+  0x00, <UTF-8 encoded string>, 0xFF
+  0x80, <length>, <binary body>
 
 :HTTP2
   @read http://daniel.haxx.se/http2/
@@ -1515,3 +1743,80 @@
     Cross-Site Request Forgery, CSRF/XSRF
     Using Components with Known Vulnerabilities
     Unvalidated Redirects and Forwards
+
+:Tests
+  :Coupling and :Cohesion
+    @read http://home.adelphi.edu/sbloch/class/adages/coupling_cohesion.html
+    @read https://msdn.microsoft.com/en-us/magazine/cc947917.aspx
+
+    "Coupling" describes the relationships between modules
+    "cohesion" describes the relationships within them
+
+:Docker
+  consists of two parts:
+    1) a daemon
+      a server process that manages all the containers
+    2) client
+      acts as a remote control for the daemon
+
+  Docker Hub Registry
+    containers images cloud-base store
+
+  @examples
+    docker search <name>
+    docker pull <username>/<container>
+    docker run <username>/<container> <command>
+    docker inspect <container-id>
+
+  Boot2Docker windows client for Docker
+    boot2docker ssh
+    boot2docker ip
+
+:git
+  save like to a database
+  never commit half-done work
+
+  :rebase
+    @read #eng https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
+    @read #ru http://habrahabr.ru/post/161009/
+
+    never to do it on public (e.g. master) branches,
+    where are working >=one developers (since their master-HEAD will be not modified)
+
+    @example
+      master: A -> B -> C (master-HEAD)
+      feature: A -> D -> E -> F (feature-HEAD)
+      rebase feature master
+      feature: A -> B -> C -> D -> E -> F (feature-HEAD)
+
+:UNIX
+  
+  :procfs
+    is a special filesystem in Unix-like operating systems that presents information about processes
+    it is mapped to a mount point named /proc at boot time
+
+    /proc/PID/cmdline
+    /proc/PID/cwd
+    /proc/PID/environ
+    /proc/PID/exe
+    /proc/PID/fd
+    /proc/PID/fdinfo
+    /proc/PID/maps
+    etc
+    /proc/buddyinfo
+    /proc/cmdline
+    /proc/cpuinfo
+    etc
+
+  :LXC
+    LinuX Containers
+
+
+  commands
+    :nice
+      used to invoke a utility or shell script with a particular priority
+      is usually called niceness
+
+      highest priority: -20
+      lowest priority: 20
+      $ nice -n 19 tar cvzf archive.tgz largefile
