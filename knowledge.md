@@ -1,8 +1,4 @@
-:RPM
-  Red Hat Package Manager
-  is a package management system
-
-:Patterns
+:Design Patterns
   similar goals, archieve them in different ways
   modularity, flexibility, testability, maintainability
   reusable solution
@@ -17,7 +13,11 @@
 
       :Factory Method
         @read #php http://www.fluffycat.com/PHP-Design-Patterns/Factory-Method/
+        @read #php http://code.tutsplus.com/tutorials/design-patterns-the-simple-factory-pattern--cms-22345
         
+        factory = place where things are created
+        (centralized placed where things are produced)
+
         creates the object you want to use
         will create the exact subclass depend on the value you pass
         depends on abstractions, not concrete class (archieve the "D" from SOLID principles)
@@ -281,6 +281,19 @@
           $invoker->setCommand(new HelloCommand($receiver))
           $invoker->run()
 
+      :Intrepreter
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Interpreter/
+
+        a macro language and syntax, parsing input into objects which perform the correct opertaions
+
+        @example
+          class Interpreter
+            interpret ($string) ->
+              ...
+
+          Interpreter->interpret('a book number 1')
+          Interpreter->interpret('a book title PHP for dummies')
+
       :Iterator
         @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Iterator
         @read #php http://www.fluffycat.com/PHP-Design-Patterns/Iterator/
@@ -404,17 +417,19 @@
         @read http://www.dofactory.com/javascript/observer-design-pattern
         Pub/Sub == Publication/Subscription
 
-         one-to-many dependency between objects so that when one object changes state,
-         all its dependents are notified and updated automatically
+        an object notifies other object(s) if it changes
 
-         offers a subscription model
-         where objects subscribe to an event
-         get notified when the event occurs
+        one-to-many dependency between objects so that when one object changes state,
+        all its dependents are notified and updated automatically
 
-         is a cornerstone of event-driven programming
-         promotes loose coupling
+        offers a subscription model
+        where objects subscribe to an event
+        get notified when the event occurs
 
-         @diagram
+        is a cornerstone of event-driven programming
+        promotes loose coupling
+
+        @diagram
           // e.g.: Click
           class Subject
             subscribe()
@@ -424,12 +439,29 @@
           // e.g.: clickHandler
           class Observers
 
-      :Specification
+        @example
+          abstract class AbstractObserver
+            abstract function update (AbstractSubject $subject)
+
+          abstract class AbstractSubject
+            abstract function attach (AbstractObserver $observer)
+            abstract function detach (AbstractObserver $observer)
+            abstract function notify ()
+
+          class PatternObserver extends AbstractObserver
+            public function update (AbstractSubject $subject) ->
+              $subject->getFavorites()
+
+          class PatternSubject extends AbstractSubject
+            function attach (AbstractObserver $observer) -> ...
+            function detach (AbstractObserver $observer) -> ...
+            function notify () -> observers[].notify()
 
       :State
         @read http://www.dofactory.com/javascript/state-design-pattern
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/State/
 
-        allow an object to alter its behavior when its internal state changes.
+        allow an object to alter its behavior when its internal state changes
 
         @diagram
           // e.g.: TrafficLight
@@ -440,7 +472,35 @@
           class State1
             handle() -> ;
 
+        @example
+          class BookContext
+            private $book
+            private $bookTitleState
+            function getBook () -> $book;
+            function setTitleState ($titleState) -> ;
+            function getBookTitle () -> $titleState->showTitle($this)
+
+          interface BookTitleStateInterface
+            function showTitle ($context)
+
+          class BookTitleStateExclaim implements BookTitleStateInterface
+            function showTitle ($context) ->
+              $title = $context->getBook()->getTitle();
+              if ...
+                $context->setTitleState(new BookTitleStateStars())
+              return ...
+
+          class BookTitleStateStars implements BookTitleStateInterface
+            function showTitle ($context) ->
+              $title = $context->getBook()->getTitle();
+              if ...
+                $context->setTitleState(new BookTitleStateExclaim)
+              return ...
+
       :Strategy
+        known as "policy pattern"
+        @read #php http://code.tutsplus.com/tutorials/design-patterns-the-strategy-pattern--cms-22796
+
         define a family of algorithms, encapsulate each one, and make them interchangeable.
         lets the algorithm vary independently from clients that use it.
 
@@ -450,6 +510,9 @@
         @examples
           test the performance of few algorithms
             one-by-one
+          
+          sorting algorithm
+            based on count of array elements - select algo with best performance
 
         @diagram
           // maintains a reference to the current Strategy object
@@ -466,24 +529,24 @@
 
         @example
           class Shipping
-            setStrategy (company) -> ;
-            calculate (package) ->
-              company.calculate(package)
+            function setStrategy ($company) -> ;
+            function calculate ($package) ->
+              $company.calculate($package)
 
           class UPS
-            calculate (package) -> '$20'
+            function calculate ($package) -> '$20'
 
           class USPS
-            calculate (package) -> '$18'
+            function calculate ($package) -> '$18'
 
           class Fedex
-            calculate (package) -> '$15'
+            function calculate ($package) -> '$15'
 
+          $shipping = new Shipping
           $ups = new UPS
           $usps = new USPS
           $fedex = new Fedex
 
-          $shipping = new Shipping
           $shipping.setStrategy($ups)
           print $shipping.calculate()
 
@@ -493,8 +556,15 @@
           $shipping.setStrategy($fedex)
           print $shipping.calculate()
 
-      :TemplateMethod
+      :Template
         @read http://www.dofactory.com/javascript/template-method-design-pattern
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Template/
+
+        an abstract class defines various methods,
+        and has one non-overridden method which calls the various methods
+
+        an abstract class will define a method with an algorithm,
+        and methods which the algorithm will use
 
         define the skeleton of an algorithm in an operation, deferring some steps to subclasses
         lets subclasses redefine certain steps of an algorithm without changing the algorithm structure
@@ -518,6 +588,22 @@
             step2()
             step3()
 
+        @example
+          abstract class TemplateAbstract
+            final function showBookTitleInfo ($book) ->
+              $title = this.processTitle($book->getTitle())
+              $author = this.processAuthor($book->getTitle())
+
+            abstract function processTitle($title)
+            function processAuthor($title) -> null
+
+          class TemplateExclaim extends TemplateAbstract
+            function processTitle($title) -> doSomeWith($title, '!!!')
+            function processAuthor($title) -> doSomeWith($title, '!!!')
+
+          class TemplateStars extends TemplateAbstract
+            function processTitle($title) -> doSomeWith($title, '***')
+
       :Visitor
         @read #js http://www.dofactory.com/javascript/visitor-design-pattern
         @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Behavioral/Visitor
@@ -532,7 +618,7 @@
 
         objects have a 'visit' method, that accepts a Visitor object
 
-        @example
+        @diagram
           // maintains a collection of Elements which can be iterated over
           // e.g.: employees array
           ObjectStructure
@@ -561,12 +647,10 @@
           class ExtraVacation
             visit (employee) -> employee.setVacation(...)
 
-          $visitorSalary = new ExtraSalary
-          $visitorVacation = new ExtraVacation
           $employee1 = new Employee
-          $employee1.accept($visitorSalary)
+          $employee1.accept(new ExtraSalary)
           $employee2 = new Employee
-          $employee2.accept($visitorVacation)
+          $employee2.accept(new ExtraVacation)
 
       :Module in javascript
         The Module pattern
@@ -587,14 +671,22 @@
     :Structural
       based on the idea of building blocks of objects
 
+      deals with how your code should be structured
+
       are concerned with object composition
       and typically identify simple ways to realize relationships between different objects
 
       :Adapter
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter
+        @read #php http://code.tutsplus.com/tutorials/design-patterns-the-adapter-pattern--cms-22262
 
-        to translate one interface for a class into a compatible interface
+        a class converts (the interface of one class) to (be what another class expects)
+
+        into a compatible interface
         allows classes to work together (that normally could not because of incompatible interfaces)
+
+        @examples
+          when code is depend on the external API
 
         @example
           interface PaperBookInterface
@@ -606,10 +698,12 @@
           class EBookAdapter implements PaperBookInterface
             __construct (EBookInterface $ebook)
 
-          someBook = new Kindle()
-          new EBookAdapter(someBook)
+          someBook = new Kindle
+          eBook = new EBookAdapter(someBook)
 
       :Bridge
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Bridge/
+
         decouple an abstraction from its implementation, so that the two can vary independently
 
         @example
@@ -641,7 +735,7 @@
             work -> 'Produced'
 
       :Composite
-        to treat a group of objects the same way as a single instance of the object.
+        assemble a group of objects the same way as a single instance of the object.
 
         @example
           class FormElement
@@ -720,15 +814,20 @@
               return $entry
 
       :Decorator
-        @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Decorator
+        another name :Wrapper
+        @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Decorator
+        @read #php http://code.tutsplus.com/tutorials/design-patterns-the-decorator-pattern--cms-22641
 
         to dynamically add new functionality to class instances
+
+        when
+          we want to add extra responsibility to our base class
 
         @example
           interface RendererInterface
             renderData -> ;
 
-          class Webservice implements RendererInterface
+          class WebService implements RendererInterface
             __construct (data) -> ;
             renderData -> data
 
@@ -745,18 +844,18 @@
               output = wrapped.renderData()
               return xml_encode(output)
 
-          service = new Webservice
+          service = new WebService
           (new RenderInJson).renderData(service)
 
-      :IOC
+      :IoC
         Inversion of Control
 
         instead of a higher level class depending on a lower level class (dependecy) implementation,
         the control is inversed so the lower level class implementation depends on an abstraction required by the higher level class.
 
-        reversed to DependencyInjection
+        reversed to :DI (DependencyInjection)
 
-        DI and SL are implementation of ICO
+        DI and :SL (ServiceLocator) are implementation of IoC
 
         @examples
           interface IRepository
@@ -767,8 +866,8 @@
         :Service Locator
           @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/More/ServiceLocator
 
-          implement a loosely coupled architecture in order to get
-          better testable, maintainable and extendable code
+          implement a loosely coupled architecture
+          in order to get better testable, maintainable and extendable code
 
           are an implementation of the Inverse of Control pattern
 
@@ -811,7 +910,8 @@
         :DependencyInjection
           @read php https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/DependencyInjection
 
-          to implement a loosely coupled architecture in order to get better testable, maintainable and extendable code
+          to implement a loosely coupled architecture
+          in order to get better testable, maintainable and extendable code
 
           @example
             abstract class AbstractConfig
@@ -839,24 +939,45 @@
 
       :Facade
         @read http://www.dofactory.com/javascript/facade-design-pattern
+        @read #php http://code.tutsplus.com/tutorials/design-patterns-the-facade-pattern--cms-22238
+
+        a class hides a complex subsystem from a calling class
 
         provide a unified interface to a set of interfaces in a subsystem
         defines a higher-level interface that makes the subsystem easier to use
 
+        we can simplify large systems
+
+        when
+          you have a few operations to be made in sequence,
+          and that the same action is required in multiple places
+
+          Facade => is a lead controller, which handles all of the repeating code
+
         @diagram
           // e.g.: Mortgage
           class Facade
-            method()
+            performAction()
 
           // e.g.: Bank, Credit, Background
           class SubSystem1 extends Facade
           class SubSystem2 extends Facade
           class SubSystem3 extends Facade
 
-      :FluentInterface
-
       :Proxy
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Proxy/
+
         a place holder object representing the true object
+
+        one class controls the creation of and access to objects in another class
+
+        @example
+          class ProxyBookList
+            getBookCount() -> ;
+            addBook($book) -> ;
+            makeBookList() -> $bookList = new bookList();
+
+          class BookList
 
       :Registry
         @read #php http://habrahabr.ru/post/183658/
@@ -879,6 +1000,7 @@
 
       :Flyweight
         @read #js http://www.dofactory.com/javascript/flyweight-design-pattern
+        @read #php http://www.fluffycat.com/PHP-Design-Patterns/Flyweight/
 
         sharing to support large numbers of fine-grained objects efficiently
         conserves memory
@@ -897,6 +1019,20 @@
           // maintains intrinsic data to be shared across the application
           // e.g.: 
           class Flyweight extends FlyweightFactory
+
+        @example
+          class FlyweightBook
+            __construct ($author, $title) -> ;
+            getAuthor () -> ...
+            getTitle () -> ...
+
+          class FlyweightFactory
+            getBook ($bookKey) -> ...
+            makeBook1 () -> ...
+            makeBook2 () -> ...
+            makeBook3 () -> ...
+
+    :Concurrency
 
     Other
       :Delegation
@@ -931,11 +1067,6 @@
       @l20n :Распределитель
       @read http://design-pattern.ru/patterns/mapper.html
 
-
-    :Registry
-      @l20n :Реестр
-      to access common objects and services
-
     :Active Record
       @l20n :Активная запись
 
@@ -966,9 +1097,9 @@
       @watch MV* http://channel9.msdn.com/Events/TechEd/NorthAmerica/2011/DPR305
       
       based upon a separation of duties
-      model - data (business loginc)
-      view - presentation layer
-      c/vm/p - glue logic
+        model - data (business loginc)
+        view - presentation layer
+        c/vm/p - glue logic
       
       all are MVC-inspired
 
@@ -1790,7 +1921,10 @@
       feature: A -> B -> C -> D -> E -> F (feature-HEAD)
 
 :UNIX
-  
+  :RPM
+    Red Hat Package Manager
+    is a package management system
+
   :procfs
     is a special filesystem in Unix-like operating systems that presents information about processes
     it is mapped to a mount point named /proc at boot time
@@ -1810,7 +1944,6 @@
 
   :LXC
     LinuX Containers
-
 
   commands
     :nice
