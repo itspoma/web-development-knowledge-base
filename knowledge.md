@@ -2172,9 +2172,6 @@
     they are coupled when B must change behavior only because A changed
 
     "Coupling" describes the relationships between modules
-<<<<<<< HEAD
-    "Cohesion" describes the relationships within them
-=======
       loose/low coupling
         means good design
           less interdependency
@@ -2186,6 +2183,7 @@
           improves maintainability
 
     "Cohesion" describes the relationships within them (e.g. function) within a single module
+
       high cohesion
         readability
         maintainability
@@ -2195,7 +2193,6 @@
         understand what a class or method does
         use descriptive names
         reuse classes or methods
->>>>>>> 09a4277a93a2a70aa7cbd84bfe1d7c7f6dfae112
 
 :Docker
   consists of two parts:
@@ -2217,19 +2214,10 @@
     boot2docker ssh
     boot2docker ip
 
-<<<<<<< HEAD
 code-repository
   :git
     save like to a database
     never commit half-done work
-=======
-  containers
-    isnt persistent
-
-:git
-  save like to a database
-  never commit half-done work
->>>>>>> 09a4277a93a2a70aa7cbd84bfe1d7c7f6dfae112
 
     :rebase
       @read #eng https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
@@ -2283,14 +2271,13 @@ code-repository
       lowest priority: 20
       $ nice -n 19 tar cvzf archive.tgz largefile
 
-<<<<<<< HEAD
 :nginx
   @read #ru http://habrahabr.ru/post/260065/
   one master process, with few childs processes
   master
     has cache-manager
   context switching
-=======
+
 :Management
   @read #ru http://citforum.ru/SE/project/selikhovkin/
   @read PMBoK
@@ -2315,4 +2302,3 @@ code-repository
     contingency plan (plan A)
     passive/active strategy
     fallback plan (plan B)
->>>>>>> 09a4277a93a2a70aa7cbd84bfe1d7c7f6dfae112
