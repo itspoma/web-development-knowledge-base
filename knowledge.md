@@ -1,3 +1,20 @@
+:ADT
+  Abstract Data Type
+
+  :stack
+    :LIFO
+    push/pop to the top of list
+    stack underflow
+
+    @example books
+
+  :queue
+    :FIFO
+    enqueue/dequeue
+
+  :tree
+    insert/delete/get
+
 :Design Patterns
   similar goals, archieve them in different ways
   modularity, flexibility, testability, maintainability
@@ -301,8 +318,13 @@
         to make an object iterable and to make it appear like a collection of objects
         traverse
 
+        internal
+          array.each / array.map
+        external
+          iterableClass(array)
+
         @examples
-          to process a file line by line by just running over all lines
+          to process a file line-by-line by just running over all lines
 
         @example
           class Book
@@ -336,8 +358,8 @@
             function request() -> medium->makeRequest()
             function output(args) -> print(args)
 
-          $client = new Client($media)
           $media = new Mediator()
+          $client = new Client($media)
           $media->setColleague(new Database($media), $client, new Server($media));
           $client->request()
 
@@ -423,8 +445,8 @@
         all its dependents are notified and updated automatically
 
         offers a subscription model
-        where objects subscribe to an event
-        get notified when the event occurs
+        where objects subscribe to an event,
+        and get notified when the event occurs
 
         is a cornerstone of event-driven programming
         promotes loose coupling
@@ -670,7 +692,6 @@
 
     :Structural
       based on the idea of building blocks of objects
-
       deals with how your code should be structured
 
       are concerned with object composition
@@ -975,6 +996,10 @@
         one class controls the creation of and access to objects in another class
 
         @example
+          request returns some response,
+          and you need to change the response structure
+
+        @example
           class ProxyBookList
             getBookCount() -> ;
             addBook($book) -> ;
@@ -1180,7 +1205,8 @@
         You gain modularity and maintainability
         pay with some hit in performance
 
-  :Resign Patterns :Anti-pattern
+  :Resign Patterns
+  :Anti-pattern
     anti-pattern represents a lesson that has been learned
 
     @read http://addyosmani.com/resources/essentialjsdesignpatterns/book/#antipatterns
@@ -1192,12 +1218,24 @@
 
     @examples
       - global namespace by defining a large number of variables in the global context
-
       - eval()
-
       - Modifying the Object class prototype
-
       - 
+
+
+    - premature optimization
+      the root of all evil
+      first profiling, only then optimization
+
+      why: its hard to predict where will meet bottleneck
+      how: rely to changes, rather than on guesswork
+
+    - bikeshed
+      waste time to discuss trivial and subjective things
+
+    - oversupply of analysis
+      why: can slow or stop the progress
+
 
     hard code
     soft code
@@ -1234,7 +1272,6 @@
   hardware support for virtual memory
 
   @read ru http://habrahabr.ru/post/211150/
-  
 
 :OOD Object Oriented Design
   @read http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
@@ -1395,6 +1432,19 @@
 
 :GRASP
   @read http://regfordev.blogspot.de/2011/02/grasp.html#.VVkYPJMrKHo
+  General Responsibility Assignment Software Patterns
+
+  colleaction of patterns, that allow to solve the issue with communication between objects
+
+  - Information Expert
+  - Creator
+  - Low Coupling
+  - High Cohesion
+  - Controller
+  - Polymorphism
+  - Pure Fabrication
+  - Indirection
+  - Protected Variations
 
 :OSI
   Open System Interconnection model
@@ -1427,6 +1477,7 @@
   Cross-Origin Resource Sharing
   specification that enables truly open access across domain-boundaries
   alternative for JSONP, since support not only GET http request
+  headers: Allow-Origins
 
 :API
   Application Programming Interface
@@ -1633,6 +1684,31 @@
   :CAP
     theorem
 
+  :Index
+    @read #ru http://ruhighload.com/post/%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0+%D1%81+%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%D0%B0%D0%BC%D0%B8+%D0%B2+MySQL
+
+  :MySQL
+    :Deadlock
+      Shared (S)
+      Exclusive (X)
+      
+      when transaction A get S lock
+      then B get X, and waiting
+      then A trying to get X, and forever will in waiting
+
+      @example
+        transaction A
+          BEGIN;
+          SELECT * FROM `testlock` WHERE id=1 LOCK IN SHARE MODE; /* GET S LOCK */
+          SELECT SLEEP(5);
+          SELECT * FROM `testlock` WHERE id=1 FOR UPDATE; /* TRY TO GET X LOCK */
+          COMMIT;
+
+        transaction B
+          BEGIN;
+          SELECT * FROM `testlock` WHERE id=1 FOR UPDATE; /* TRY TO GET X LOCK - DEADLOCK AND ROLLBACK HERE */
+          COMMIT;
+
   :Relational database
     :PostgreSQL
       @todo
@@ -1715,6 +1791,12 @@
 
 :PHP
   @read http://php.net/manual/en/appendices.php
+
+  v7
+    - :AST
+      Abstract Syntax Tree
+      decouples the parser and compiler
+    - php-ng (New Generation)
 
   v5.6
     - Constant Scalar Expressions
@@ -1972,6 +2054,35 @@
 
       has knowledge base in Web
 
+    :Kanban
+      allows to do work "right in time"
+      
+      - visualize the workflow
+        split the work into items (one item == one card)
+        named columns
+      - limit work-in-progress
+        how many items can be in one column
+      - measure the lead time
+        avg time to complete the item
+
+      diff vs Scrum
+        like diff knife and fork
+        scrum gives more constraints
+        scrum timeboxed iterations
+        scrum has backlog
+
+      Prospective/adaptive:
+        RUP: 120+
+        XP: 13+
+        Scrum: 9+
+        Kanban: 3
+
+    :XP
+      eXtreme programming
+      includes most of Scrum
+      tdd
+      pair programming
+
     :Scrum-ban Scrunban
       unpredictable work environment
       plans and requirements change often
@@ -1984,6 +2095,50 @@
     :Scrum
       @read http://scrum.org.ua/wp-content/uploads/ScrumAndKanbanRuFinal.pdf
       @read ru http://scrum.org.ua/wp-content/uploads/2008/12/scrum_xp-from-the-trenches-rus-final.pdf
+      @read https://www.crisp.se/file-uploads/Kanban-vs-Scrum.pdf
+
+      - split your org into small/self-org teams
+      - split your work (w\ own priority & estimate)
+      - split work-time into iteration
+      - optimize the process by having a reprospective
+      - doesn’t prescribe any specific engineering practices
+
+      user story:
+        as a (role), I want (feature), so that (benefit)
+
+      product backlog:
+        a collection of user-stories
+
+      release planning:
+        identify a release backlog
+        w\ priority & estimate
+
+      estimates
+        story points (build a small components)
+          dont answ the question: when will the project ship
+        in hours
+          // 
+
+      roles
+        - Product Owner
+          represent product vision & priorities
+          formats product backlog
+          present interests persons
+          deliver business outcomes
+          based on Stakeholders needs
+        - Scrum Master
+          provides process leadership
+          driving the standups
+          progressing
+          every team-mate make his work
+          Agile process expert
+        - Scrum Team
+          QA, devs, analytics
+        - Users
+        - Stakeholders
+          provide product guidance and feedback
+        - Managers
+        - Consulting Experts
 
 :Deferred
   decouple logic from behaviors
@@ -2049,6 +2204,7 @@
           improves maintainability
 
     "Cohesion" describes the relationships within them (e.g. function) within a single module
+
       high cohesion
         readability
         maintainability
@@ -2079,25 +2235,28 @@
     boot2docker ssh
     boot2docker ip
 
-  containers
-    isnt persistent
+code-repository
+  :git
+    save like to a database
+    never commit half-done work
 
-:git
-  save like to a database
-  never commit half-done work
+    :rebase
+      @read #eng https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
+      @read #ru http://habrahabr.ru/post/161009/
 
-  :rebase
-    @read #eng https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
-    @read #ru http://habrahabr.ru/post/161009/
+      never to do it on public (e.g. master) branches,
+      where are working >=one developers (since their master-HEAD will be not modified)
 
-    never to do it on public (e.g. master) branches,
-    where are working >=one developers (since their master-HEAD will be not modified)
+      @example
+        master: A -> B -> C (master-HEAD)
+        feature: A -> D -> E -> F (feature-HEAD)
+        rebase feature master
+        feature: A -> B -> C -> D -> E -> F (feature-HEAD)
 
-    @example
-      master: A -> B -> C (master-HEAD)
-      feature: A -> D -> E -> F (feature-HEAD)
-      rebase feature master
-      feature: A -> B -> C -> D -> E -> F (feature-HEAD)
+  :hg
+    Mercurial
+      @read #ru #man1 http://habrahabr.ru/post/108443/
+
 
 :UNIX
   :RPM
@@ -2132,6 +2291,13 @@
       highest priority: -20
       lowest priority: 20
       $ nice -n 19 tar cvzf archive.tgz largefile
+
+:nginx
+  @read #ru http://habrahabr.ru/post/260065/
+  one master process, with few childs processes
+  master
+    has cache-manager
+  context switching
 
 :Management
   @read #ru http://citforum.ru/SE/project/selikhovkin/
