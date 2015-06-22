@@ -865,6 +865,9 @@
 
         :Service Locator
           @read #php https://github.com/domnikl/DesignPatternsPHP/tree/master/More/ServiceLocator
+          @read #php http://habrahabr.ru/post/191168/
+
+          link runtime-linker between class-and-service
 
           implement a loosely coupled architecture
           in order to get better testable, maintainable and extendable code
@@ -1358,6 +1361,9 @@
   DIP: Dependency inversion
     Depend upon Abstractions. Do not depend upon concretions
 
+    low level = primary ops (disk access, network protocols, etc)
+    high level = encapsulate complex logic (business flows, ..)
+
     @example
       class Customer {
         function buyItems () ->
@@ -1474,8 +1480,14 @@
       </methodCall>
 
   :XSD
+    @read #ru http://habrahabr.ru/company/cit/blog/259167/
     describe XML
-    
+
+    patterns
+      - Russian Doll
+      - Salami Slice
+      - Venetian Blind
+      - Garden of Eden
 
   :REST
     Representational State Transfer
@@ -1959,6 +1971,15 @@
       in workflows
 
       has knowledge base in Web
+
+    :Scrum-ban Scrunban
+      unpredictable work environment
+      plans and requirements change often
+      small iterations
+      planning meetings
+      on-demand planning
+      prioritize tasks
+      board - To Do, Doing and Done
 
     :Scrum
       @read http://scrum.org.ua/wp-content/uploads/ScrumAndKanbanRuFinal.pdf
