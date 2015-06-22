@@ -1236,12 +1236,22 @@
 :OOD Object Oriented Design
   @read http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod
 
+:Composition
+  is about expressing relationships between objects
+  @example think about the chair (seat, back, set of legs)
+
+:Aggregation
+
+
 :SOLID
   @watch https://www.youtube.com/watch?v=jP7fSA8DuJQ
+  @read #ru http://habrahabr.ru/post/208442/
 
   named by Robert C. Martin
 
   :SRP Single responsibility
+    one class = solving one problem (nothing more)
+
     a class should have only a single responsibility
     there should never be more than one reason for a class to change
     
@@ -1250,19 +1260,132 @@
 
     @example
       (new Report).Print()
-  
+
+    @example
+      class Order {
+        function calculateTotalSum() { ... }
+        function get/add/deleteItems() { ... }
+        function print/showOrder() { ... }
+        function load/save/update/delete() { ... }
+      }
+
+      =>
+
+      class Order { }
+      class OrderRepository { }
+      class OrderViewer { }
+
   OCP: Open-closed
     software entities (classes, modules, functions, etc) should be opened for extension
     and closed for modification
 
-  LSP: Liskov substitution
+    the classes should be proected in such way, that if we need to change behavior we dont need  to change their source code
+
+    @example
+      class OrderRepository {
+        function load () {
+          new PDO
+          ..use PDO with MySQL syntax..
+        }
+        function save () { .. }
+        function update () { .. }
+        function delete () { .. }
+      }
+
+      =>
+
+      class OrderRepository {
+        function setSource(IOrderSource $source) { ... }
+        funtion load/save/update () { .. }
+      }
+
+      class MysqlOrderSource implements IOrderSource { ... }
+
+  LSP: Liskov substitution (Barbara Liskov)
     objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program
+
+    object can be replaces by theirs inheritors,
+    without changing the properties of the program
+
+    the inheriting class should add functionality, instead of replacing it
+
+    if we have class A, and B<-A, then if we'll replace everywhere A to B,
+    the app behavior should be changes. Since B will only ADD the functionality (without replacing it)
+
+    @example
+      class Rectangle {
+        $width
+        $height
+      }
+
+      class Square extends Rectangle {
+        function set/get Height/Weight ($value) { .. }
+      }
+
+      calculateRectangleSquare(new Rectangle, 4, 5) => 20
+      calculateRectangleSquare(new Square, 4, 5) => 25 ???
+
+      =>
+
+      class Rectangle { .. }
+      class Square { .. }
 
   ISP: Interface segregation
     many client-specific interfaces are better than one general-purpose interface
 
+    why
+      to classes that use interface will know only about that methods, that are needed
+
+    @example
+      interface IItem {
+        function applyDiscount
+        function applyPromocode
+        function setColor
+        function setSize
+        function setCondition
+        function setPrice
+      }
+
+      =>
+
+      interface IItem { .. }
+      interface IClothes { .. }
+      interface IDiscountable { .. }
+
+      class Book implemets IItem, IDiscountable { .. }
+      class KidsClothes implemets IItem, IClothes { .. }
+
   DIP: Dependency inversion
     Depend upon Abstractions. Do not depend upon concretions
+
+    @example
+      class Customer {
+        function buyItems () ->
+          new OrderProcess()
+
+        function addItem () { .. }
+        function deleteItem () { .. }
+      }
+
+      class OrderProcessor {
+        function checkout () { .. }
+      }
+
+      =>
+
+      class Customer {
+        function buyItems(IOrderProcessor $processor) { .. }
+        function addItem () { .. }
+        function deleteItem () { .. }
+      }
+
+      interface IOrderProcessor {
+        function checkout
+      }
+
+      class OrderProcessor implements IOrderProcessor {
+        function checkout () { .. }
+      }
 
 :GRASP
   @read http://regfordev.blogspot.de/2011/02/grasp.html#.VVkYPJMrKHo
@@ -1349,6 +1472,10 @@
           </param>
         </params>
       </methodCall>
+
+  :XSD
+    describe XML
+    
 
   :REST
     Representational State Transfer
@@ -1784,6 +1911,8 @@
       used to development of airplanes/bridges/etc
       perfectionism at every stage
 
+      managers determine a team member’s workload capacity in terms of time
+
       model
         requirements
         design
@@ -1805,6 +1934,10 @@
         it is difficult to make changes
         excessive design
         dividing developers to "perfect" and "code monkeys"
+        work is always late
+        always quality problems
+        last minute crunch
+        some people are always waiting for other people
 
     :RUP
       Rational Unified Process
@@ -1880,8 +2013,30 @@
     @read http://home.adelphi.edu/sbloch/class/adages/coupling_cohesion.html
     @read https://msdn.microsoft.com/en-us/magazine/cc947917.aspx
 
+    given two lines of code, A and B,
+    they are coupled when B must change behavior only because A changed
+
     "Coupling" describes the relationships between modules
-    "cohesion" describes the relationships within them
+      loose/low coupling
+        means good design
+          less interdependency
+          less coordination
+          less information flow
+        pros
+          understand one class without reading others
+          change one class without affecting others
+          improves maintainability
+
+    "Cohesion" describes the relationships within them (e.g. function) within a single module
+      high cohesion
+        readability
+        maintainability
+        reusability
+        understandability
+      pros
+        understand what a class or method does
+        use descriptive names
+        reuse classes or methods
 
 :Docker
   consists of two parts:
@@ -1902,6 +2057,9 @@
   Boot2Docker windows client for Docker
     boot2docker ssh
     boot2docker ip
+
+  containers
+    isnt persistent
 
 :git
   save like to a database
@@ -1953,3 +2111,28 @@
       highest priority: -20
       lowest priority: 20
       $ nice -n 19 tar cvzf archive.tgz largefile
+
+:Management
+  @read #ru http://citforum.ru/SE/project/selikhovkin/
+  @read PMBoK
+
+  :Methodologies
+    control the time, price, content, quality, risks, personal, communication, etc
+
+  :Project
+    start, end and goal
+
+    lifecycle
+      initializing (linear)
+      planning, development, monitoring & management (iteratable)
+      finish (linear)
+
+  :Risks
+    identify the risks
+    risks registry
+    analyse
+    estimate - probability && effect
+    traffic-light (road) principle
+    contingency plan (plan A)
+    passive/active strategy
+    fallback plan (plan B)
